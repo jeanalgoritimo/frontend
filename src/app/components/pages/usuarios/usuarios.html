@@ -1,0 +1,112 @@
+<section class="usuarios">
+  <h2 class="h4 mb-3">Usuários</h2>
+
+  <ng-container *ngIf="estatisticas$ | async as stats">
+    <div class="row row-cols-2 row-cols-md-3 g-2 mb-3">
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body py-2">
+            <div class="text-muted small">Total</div>
+            <div class="fs-5 fw-semibold">{{ stats.totalUsuarios }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body py-2">
+            <div class="text-muted small">Ativos</div>
+            <div class="fs-5 fw-semibold">{{ stats.usuariosAtivos }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body py-2">
+            <div class="text-muted small">Admins ativos</div>
+            <div class="fs-5 fw-semibold">{{ stats.totalAdmins }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="mb-3">
+    <div class="input-group" style="max-width: 360px">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar por nome ou e-mail..."
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="onBuscar()"
+      />
+    </div>
+  </div>
+
+  <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+  <div class="text-muted mb-2" *ngIf="carregando$ | async">
+    <span class="spinner-border spinner-border-sm me-2"></span>Carregando...
+  </div>
+
+  <form class="row g-2 mb-3 align-items-end" (ngSubmit)="adicionar()">
+    <div class="col-12 col-sm-6 col-md-3">
+      <label class="form-label small mb-1">Nome</label>
+      <input type="text" class="form-control" [(ngModel)]="novoUsuario.nome" name="nome" required />
+    </div>
+    <div class="col-12 col-sm-6 col-md-4">
+      <label class="form-label small mb-1">E-mail</label>
+      <input type="email" class="form-control" [(ngModel)]="novoUsuario.email" name="email" required />
+    </div>
+    <div class="col-8 col-md-3">
+      <label class="form-label small mb-1">Perfil</label>
+      <select class="form-select" [(ngModel)]="novoUsuario.perfil" name="perfil">
+        <option value="usuario">Usuário</option>
+        <option value="admin">Administrador</option>
+      </select>
+    </div>
+    <div class="col-4 col-md-2">
+      <button type="submit" class="btn btn-primary w-100">
+        <i class="bi bi-plus-lg me-1"></i>Adicionar
+      </button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead class="table-light">
+        <tr>
+          <th>Nome</th>
+          <th>E-mail</th>
+          <th>Perfil</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuarios$ | async">
+          <td>{{ usuario.nome }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>
+            <span class="badge" [class.text-bg-primary]="usuario.perfil === 'admin'" [class.text-bg-info]="usuario.perfil !== 'admin'">
+              {{ usuario.perfil === 'admin' ? 'Administrador' : 'Usuário' }}
+            </span>
+          </td>
+          <td>
+            <span class="badge" [class.text-bg-success]="usuario.ativo" [class.text-bg-secondary]="!usuario.ativo">
+              {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-secondary me-1" (click)="alternarAtivo(usuario.id)">
+              <i class="bi" [class.bi-toggle-off]="!usuario.ativo" [class.bi-toggle-on]="usuario.ativo"></i>
+              {{ usuario.ativo ? 'Desativar' : 'Ativar' }}
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="remover(usuario.id)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

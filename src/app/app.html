@@ -1,0 +1,10 @@
+<div class="layout">
+  <app-navbar (alternarMenu)="alternarSidebar()" />
+  <div class="corpo">
+    <app-sidebar [aberta]="sidebarAberta()" (fechar)="fecharSidebar()" />
+    <div class="overlay" *ngIf="sidebarAberta()" (click)="fecharSidebar()"></div>
+    <main class="conteudo">
+      <router-outlet />
+    </main>
+  </div>
+</div>

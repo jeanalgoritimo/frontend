@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  width: 220px;
+  overflow: hidden;
+  transition: width 0.25s ease, transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+:host(:not(.aberta)) {
+  width: 0;
+}
+
+.sidebar {
+  width: 220px;
+  height: 100%;
+
+  .nav-link {
+    color: #333;
+    border-radius: 6px;
+    white-space: nowrap;
+
+    &.active {
+      background-color: #1f2937;
+      color: #fff;
+    }
+
+    &:hover:not(.active) {
+      background-color: #f3f4f6;
+    }
+  }
+}
+
+@media (max-width: 991.98px) {
+  :host {
+    position: fixed;
+    top: 56px;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    z-index: 1035;
+    transform: translateX(-100%);
+  }
+
+  :host(.aberta) {
+    width: 260px;
+    transform: translateX(0);
+  }
+
+  .sidebar {
+    width: 260px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+}
