@@ -1,5 +1,6 @@
 <div class="layout">
   <app-navbar (alternarMenu)="alternarSidebar()" />
+  <app-toast />
   <div class="corpo">
     <app-sidebar [aberta]="sidebarAberta()" (fechar)="fecharSidebar()" />
     <div class="overlay" *ngIf="sidebarAberta()" (click)="fecharSidebar()"></div>

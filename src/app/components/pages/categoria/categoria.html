@@ -1,0 +1,94 @@
+<section class="categorias">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Categorias</h2>
+    <button type="button" class="btn btn-primary" (click)="abrirModalNovo()">
+      <i class="bi bi-plus-lg me-1"></i>Nova Categoria
+    </button>
+  </div>
+
+  <div class="mb-3">
+    <div class="input-group" style="max-width: 360px">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar categoria por nome..."
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="onBuscar()"
+      />
+    </div>
+  </div>
+
+  <div class="alert alert-danger py-2" *ngIf="mensagemErro && !modalAberto">{{ mensagemErro }}</div>
+  <div class="text-muted mb-2" *ngIf="carregando$ | async">
+    <span class="spinner-border spinner-border-sm me-2"></span>Carregando...
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead class="table-light">
+        <tr>
+          <th>Nome</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let categoria of categorias$ | async">
+          <td>{{ categoria.nome }}</td>
+          <td>
+            <span class="badge" [class.text-bg-success]="categoria.ativa" [class.text-bg-secondary]="!categoria.ativa">
+              {{ categoria.ativa ? 'Ativa' : 'Inativa' }}
+            </span>
+          </td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalEdicao(categoria)">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-1" (click)="alternarAtiva(categoria)">
+              <i class="bi" [class.bi-toggle-off]="!categoria.ativa" [class.bi-toggle-on]="categoria.ativa"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="abrirConfirmExclusao(categoria)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<ng-container *ngIf="modalAberto">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="salvar()">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modoEdicao ? 'Editar Categoria' : 'Nova Categoria' }}</h5>
+            <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Nome</label>
+              <input type="text" class="form-control" [(ngModel)]="nomeForm" name="nome" required />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</ng-container>
+
+<app-confirm-modal
+  [aberto]="!!categoriaParaExcluir"
+  titulo="Excluir Categoria"
+  [mensagem]="'Deseja excluir a categoria ' + (categoriaParaExcluir?.nome ?? '') + '?'"
+  (confirmar)="confirmarExclusao()"
+  (cancelar)="cancelarExclusao()"
+/>

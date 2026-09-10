@@ -1,6 +1,6 @@
 # Painel de Gestão — Frontend
 
-Aplicação SPA (Single Page Application) para gestão de **Produtos** e **Usuários**, com um **Dashboard** consolidando indicadores dos dois módulos em tempo real.
+Aplicação SPA (Single Page Application) para gestão de **Produtos**, **Categorias** e **Usuários**, com um **Dashboard** consolidando indicadores em tempo real.
 
 ## Tecnologias utilizadas
 
@@ -21,18 +21,24 @@ Não há backend/API real: os dados são mantidos em memória, dentro dos *servi
 
 ```
 src/app/
-├── app.ts / app.html / app.scss      # Shell da aplicação (navbar + sidebar + router-outlet)
+├── app.ts / app.html / app.scss      # Shell da aplicação (navbar + sidebar + toast + router-outlet)
 ├── app.routes.ts                     # Definição das rotas
-├── models/                           # Interfaces de domínio (Produto, Usuario)
+├── models/                           # Interfaces de domínio (Produto, Categoria, Usuario)
 ├── services/                         # Regras de negócio + estado reativo (RxJS)
 │   ├── produto.service.ts
-│   └── usuario.service.ts
+│   ├── categoria.service.ts
+│   ├── usuario.service.ts
+│   └── notificacao.service.ts        # Canal de notificações (toasts) de sucesso/erro
 └── components/
     ├── navbar/                       # Barra superior com botão de alternar o menu
     ├── sidebar/                      # Menu lateral retrátil (responsivo)
     ├── dashboard/                    # Indicadores consolidados (produtos + usuários)
+    ├── shared/
+    │   ├── confirm-modal/            # Modal de confirmação Sim/Não (usado nas exclusões)
+    │   └── toast/                    # Notificações (toasts) de sucesso/erro
     └── pages/
-        ├── produto/                  # CRUD de produtos
+        ├── produto/                  # CRUD de produtos (com combobox de categoria)
+        ├── categoria/                # CRUD de categorias
         └── usuarios/                 # CRUD de usuários
 ```
 
@@ -45,18 +51,27 @@ src/app/
 
 ### Produtos
 - Listagem com busca por nome (debounce de 300ms, sem chamadas a cada tecla digitada).
-- Cadastro, edição inline e remoção de produtos.
+- Cadastro e edição feitos em **modal** (formulário único reaproveitado para os dois casos); o campo **Categoria** é um **combobox** alimentado pelas categorias ativas cadastradas.
+- Remoção com **modal de confirmação Sim/Não**.
 - Indicadores de estoque baixo destacados visualmente.
+- Notificação (toast) de sucesso ao salvar/editar.
+
+### Categorias
+- CRUD completo (criar, editar, ativar/desativar, remover) em modal, com busca por nome (debounce de 300ms).
+- Remoção com modal de confirmação Sim/Não.
+- Notificação (toast) de sucesso ao salvar/editar/remover.
 
 ### Usuários
 - Listagem com busca por nome ou e-mail (debounce de 300ms).
-- Cadastro de usuários com perfil **Administrador** ou **Usuário**.
-- Ativação/desativação e remoção de usuários.
+- Cadastro e edição em modal, com perfil **Administrador** ou **Usuário**.
+- Ativação/desativação e remoção (com modal de confirmação Sim/Não).
+- Notificação (toast) de sucesso ao salvar/editar.
 
 ### Layout
 - Navbar fixa com botão para alternar o menu lateral.
-- Sidebar retrátil: no desktop recolhe/expande a largura; no mobile vira um *drawer* sobreposto com fundo escurecido, fechando ao clicar fora ou em um link.
-- Interface construída com componentes Bootstrap (cards, badges, tabelas responsivas, spinners de carregamento).
+- Sidebar retrátil: no desktop recolhe/expande a largura; no mobile vira um *drawer* sobreposto com fundo escurecido, fechando ao clicar fora ou em um link. Inicia aberta em telas largas e fechada em telas estreitas.
+- Notificações (toasts) de sucesso/erro exibidas no canto superior direito, com auto-dismiss.
+- Interface construída com componentes Bootstrap (cards, badges, tabelas responsivas, modais, spinners de carregamento).
 
 ## Regras de negócio
 
@@ -72,13 +87,20 @@ src/app/
 3. **Não é possível desativar o último administrador ativo** do sistema (garante que sempre exista pelo menos um admin ativo).
 4. **Não é possível remover o último administrador ativo** do sistema, pela mesma razão.
 
+### Categorias
+1. O **nome** da categoria é obrigatório e deve ser **único**.
+2. **Não é possível remover uma categoria que esteja em uso** por algum produto cadastrado (integridade referencial).
+3. Apenas categorias **ativas** aparecem no combobox de seleção ao cadastrar/editar um produto.
+
 ## Arquitetura reativa (RxJS)
 
-Cada *service* (`ProdutoService`, `UsuarioService`) expõe:
+Cada *service* (`ProdutoService`, `CategoriaService`, `UsuarioService`) expõe:
 - `BehaviorSubject` como fonte única do estado atual (lista em memória).
 - Um `Subject` de busca com `debounceTime` + `distinctUntilChanged`, combinado (`combineLatest`) com a lista de dados para gerar a listagem filtrada de forma reativa.
 - Um stream de estatísticas (`map`) derivado do estado, usado tanto nas páginas quanto no Dashboard.
 - Operações de escrita (`adicionar`, `atualizar`, `remover`, `alternarAtivo`) que validam as regras de negócio, simulam latência de rede (`delay`) e atualizam o estado via `tap`, controlando `loading` (`finalize`) e erros (`catchError`/`throwError`).
+
+O `NotificacaoService` usa um `Subject` para emitir eventos de sucesso/erro, consumidos pelo componente `Toast` (exibido no shell da aplicação) para feedback visual das operações de CRUD.
 
 Os componentes consomem os streams via `async pipe` no template, sem `subscribe` manual para leitura — evitando vazamento de memória (*memory leaks*).
 

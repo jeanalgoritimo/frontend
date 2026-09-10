@@ -1,0 +1,20 @@
+<ng-container *ngIf="aberto">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ titulo }}</h5>
+          <button type="button" class="btn-close" aria-label="Fechar" (click)="cancelar.emit()"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-0">{{ mensagem }}</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancelar.emit()">Não</button>
+          <button type="button" class="btn btn-danger" (click)="confirmar.emit()">Sim</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</ng-container>

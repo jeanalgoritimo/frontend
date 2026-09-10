@@ -68,6 +68,11 @@ export class ProdutoService {
     this.termoBuscaSubject.next(termo);
   }
 
+  /** Snapshot síncrono do estado atual (usado por outros services para validações) */
+  produtosAtuais(): Produto[] {
+    return this.produtosSubject.value;
+  }
+
   /** switchMap garante que, se uma nova requisição de busca chegar, a anterior é cancelada */
   buscarPorId$(id: number): Observable<Produto | undefined> {
     return this.termoBuscaSubject.pipe(
@@ -138,9 +143,10 @@ export class ProdutoService {
     );
   }
 
-  /** Regra de negócio: preço deve ser positivo e estoque não pode ser negativo */
+  /** Regra de negócio: categoria é obrigatória, preço deve ser positivo e estoque não pode ser negativo */
   private validar(produto: Omit<Produto, 'id'> | Produto): string | null {
     if (!produto.nome?.trim()) return 'Nome do produto é obrigatório.';
+    if (!produto.categoria?.trim()) return 'Categoria é obrigatória.';
     if (produto.preco <= 0) return 'Preço deve ser maior que zero.';
     if (produto.estoque < 0) return 'Estoque não pode ser negativo.';
     return null;

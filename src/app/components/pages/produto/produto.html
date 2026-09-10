@@ -1,5 +1,10 @@
 <section class="produtos">
-  <h2 class="h4 mb-3">Produtos</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Produtos</h2>
+    <button type="button" class="btn btn-primary" (click)="abrirModalNovo()">
+      <i class="bi bi-plus-lg me-1"></i>Novo Produto
+    </button>
+  </div>
 
   <ng-container *ngIf="estatisticas$ | async as stats">
     <div class="row row-cols-2 row-cols-md-4 g-2 mb-3">
@@ -53,34 +58,10 @@
     </div>
   </div>
 
-  <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+  <div class="alert alert-danger py-2" *ngIf="mensagemErro && !modalAberto">{{ mensagemErro }}</div>
   <div class="text-muted mb-2" *ngIf="carregando$ | async">
     <span class="spinner-border spinner-border-sm me-2"></span>Carregando...
   </div>
-
-  <form class="row g-2 mb-3 align-items-end" (ngSubmit)="adicionar()">
-    <div class="col-12 col-sm-6 col-md-3">
-      <label class="form-label small mb-1">Nome</label>
-      <input type="text" class="form-control" [(ngModel)]="novoProduto.nome" name="nome" required />
-    </div>
-    <div class="col-12 col-sm-6 col-md-3">
-      <label class="form-label small mb-1">Categoria</label>
-      <input type="text" class="form-control" [(ngModel)]="novoProduto.categoria" name="categoria" />
-    </div>
-    <div class="col-6 col-md-2">
-      <label class="form-label small mb-1">Preço</label>
-      <input type="number" class="form-control" [(ngModel)]="novoProduto.preco" name="preco" min="0" step="0.01" />
-    </div>
-    <div class="col-6 col-md-2">
-      <label class="form-label small mb-1">Estoque</label>
-      <input type="number" class="form-control" [(ngModel)]="novoProduto.estoque" name="estoque" min="0" />
-    </div>
-    <div class="col-12 col-md-2">
-      <button type="submit" class="btn btn-primary w-100">
-        <i class="bi bi-plus-lg me-1"></i>Adicionar
-      </button>
-    </div>
-  </form>
 
   <div class="table-responsive">
     <table class="table table-hover align-middle bg-white">
@@ -96,40 +77,81 @@
       </thead>
       <tbody>
         <tr *ngFor="let produto of produtos$ | async">
-          <ng-container *ngIf="editandoId === produto.id; else visualizacao">
-            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="produto.nome" name="nome-{{ produto.id }}" /></td>
-            <td><input type="text" class="form-control form-control-sm" [(ngModel)]="produto.categoria" name="categoria-{{ produto.id }}" /></td>
-            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="produto.preco" name="preco-{{ produto.id }}" /></td>
-            <td><input type="number" class="form-control form-control-sm" [(ngModel)]="produto.estoque" name="estoque-{{ produto.id }}" /></td>
-            <td><span class="badge" [class.text-bg-success]="produto.ativo" [class.text-bg-secondary]="!produto.ativo">{{ produto.ativo ? 'Ativo' : 'Inativo' }}</span></td>
-            <td class="text-end">
-              <button class="btn btn-sm btn-success me-1" (click)="salvarEdicao(produto)">
-                <i class="bi bi-check-lg"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-secondary" (click)="cancelarEdicao()">
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </td>
-          </ng-container>
-          <ng-template #visualizacao>
-            <td>{{ produto.nome }}</td>
-            <td>{{ produto.categoria }}</td>
-            <td>{{ produto.preco | currency: 'BRL' }}</td>
-            <td [class.text-danger]="produto.estoque < 5" [class.fw-semibold]="produto.estoque < 5">
-              {{ produto.estoque }}
-            </td>
-            <td><span class="badge" [class.text-bg-success]="produto.ativo" [class.text-bg-secondary]="!produto.ativo">{{ produto.ativo ? 'Ativo' : 'Inativo' }}</span></td>
-            <td class="text-end">
-              <button class="btn btn-sm btn-outline-primary me-1" (click)="editar(produto)">
-                <i class="bi bi-pencil"></i>
-              </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="remover(produto.id)">
-                <i class="bi bi-trash"></i>
-              </button>
-            </td>
-          </ng-template>
+          <td>{{ produto.nome }}</td>
+          <td>{{ produto.categoria }}</td>
+          <td>{{ produto.preco | currency: 'BRL' }}</td>
+          <td [class.text-danger]="produto.estoque < 5" [class.fw-semibold]="produto.estoque < 5">
+            {{ produto.estoque }}
+          </td>
+          <td><span class="badge" [class.text-bg-success]="produto.ativo" [class.text-bg-secondary]="!produto.ativo">{{ produto.ativo ? 'Ativo' : 'Inativo' }}</span></td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalEdicao(produto)">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="abrirConfirmExclusao(produto)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 </section>
+
+<ng-container *ngIf="modalAberto">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="salvar()">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modoEdicao ? 'Editar Produto' : 'Novo Produto' }}</h5>
+            <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Nome</label>
+              <input type="text" class="form-control" [(ngModel)]="formProduto.nome" name="nome" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Categoria</label>
+              <select class="form-select" [(ngModel)]="formProduto.categoria" name="categoria" required>
+                <option value="" disabled>Selecione uma categoria...</option>
+                <option *ngFor="let categoria of categoriasAtivas$ | async" [value]="categoria.nome">
+                  {{ categoria.nome }}
+                </option>
+              </select>
+            </div>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label small mb-1">Preço</label>
+                <input type="number" class="form-control" [(ngModel)]="formProduto.preco" name="preco" min="0" step="0.01" />
+              </div>
+              <div class="col-6">
+                <label class="form-label small mb-1">Estoque</label>
+                <input type="number" class="form-control" [(ngModel)]="formProduto.estoque" name="estoque" min="0" />
+              </div>
+            </div>
+            <div class="form-check mt-2">
+              <input type="checkbox" class="form-check-input" [(ngModel)]="formProduto.ativo" name="ativo" id="produtoAtivo" />
+              <label class="form-check-label" for="produtoAtivo">Ativo</label>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</ng-container>
+
+<app-confirm-modal
+  [aberto]="!!produtoParaExcluir"
+  titulo="Excluir Produto"
+  [mensagem]="'Deseja excluir o produto ' + (produtoParaExcluir?.nome ?? '') + '?'"
+  (confirmar)="confirmarExclusao()"
+  (cancelar)="cancelarExclusao()"
+/>

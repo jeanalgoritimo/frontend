@@ -71,6 +71,42 @@ export class UsuarioService {
     );
   }
 
+  /** Regra de negócio: não permite rebaixar/desativar o último administrador ativo */
+  atualizar(id: number, alteracoes: Partial<Usuario>): Observable<Usuario> {
+    const atual = this.usuariosSubject.value.find((u) => u.id === id);
+    if (!atual) {
+      return throwError(() => new Error('Usuário não encontrado.'));
+    }
+
+    const atualizado: Usuario = { ...atual, ...alteracoes };
+    const erroValidacao = this.validarEdicao(atualizado);
+    if (erroValidacao) {
+      return throwError(() => new Error(erroValidacao));
+    }
+
+    const perdeAdminAtivo =
+      atual.perfil === 'admin' &&
+      atual.ativo &&
+      (atualizado.perfil !== 'admin' || !atualizado.ativo) &&
+      this.isUltimoAdminAtivo(id);
+    if (perdeAdminAtivo) {
+      const msg = 'Não é possível remover o status de administrador ativo do último admin.';
+      this.erroSubject.next(msg);
+      return throwError(() => new Error(msg));
+    }
+
+    this.carregandoSubject.next(true);
+    return of(atualizado).pipe(
+      delay(300),
+      tap((usuario) => {
+        this.usuariosSubject.next(
+          this.usuariosSubject.value.map((u) => (u.id === id ? usuario : u)),
+        );
+      }),
+      finalize(() => this.carregandoSubject.next(false)),
+    );
+  }
+
   /** Regra de negócio: não permite desativar o último administrador ativo */
   alternarAtivo(id: number): Observable<Usuario> {
     const usuario = this.usuariosSubject.value.find((u) => u.id === id);
@@ -123,6 +159,16 @@ export class UsuarioService {
     if (!/^\S+@\S+\.\S+$/.test(usuario.email)) return 'E-mail inválido.';
     const emailExiste = this.usuariosSubject.value.some(
       (u) => u.email.toLowerCase() === usuario.email.toLowerCase(),
+    );
+    if (emailExiste) return 'Já existe um usuário com este e-mail.';
+    return null;
+  }
+
+  private validarEdicao(usuario: Usuario): string | null {
+    if (!usuario.nome?.trim()) return 'Nome é obrigatório.';
+    if (!/^\S+@\S+\.\S+$/.test(usuario.email)) return 'E-mail inválido.';
+    const emailExiste = this.usuariosSubject.value.some(
+      (u) => u.id !== usuario.id && u.email.toLowerCase() === usuario.email.toLowerCase(),
     );
     if (emailExiste) return 'Já existe um usuário com este e-mail.';
     return null;

@@ -1,0 +1,13 @@
+<div class="toast-stack">
+  <div
+    *ngFor="let n of notificacoes"
+    class="alert d-flex align-items-center shadow-sm"
+    [class.alert-success]="n.tipo === 'sucesso'"
+    [class.alert-danger]="n.tipo === 'erro'"
+    role="alert"
+  >
+    <i class="bi me-2" [class.bi-check-circle-fill]="n.tipo === 'sucesso'" [class.bi-exclamation-triangle-fill]="n.tipo === 'erro'"></i>
+    <div class="flex-grow-1">{{ n.mensagem }}</div>
+    <button type="button" class="btn-close ms-2" aria-label="Fechar" (click)="remover(n.id)"></button>
+  </div>
+</div>
