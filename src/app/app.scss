@@ -1,34 +1,4 @@
-.layout {
-  display: flex;
-  flex-direction: column;
+:host {
+  display: block;
   min-height: 100dvh;
-}
-
-.corpo {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  position: relative;
-}
-
-.conteudo {
-  flex: 1;
-  min-width: 0;
-  padding: 1rem;
-  background-color: #f8f9fa;
-}
-
-.overlay {
-  display: none;
-}
-
-@media (max-width: 991.98px) {
-  .overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    top: 56px;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 1030;
-  }
 }

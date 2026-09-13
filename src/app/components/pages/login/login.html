@@ -1,0 +1,83 @@
+<div class="login-page d-flex align-items-center justify-content-center">
+  <div class="login-card card shadow-lg border-0">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-4">
+        <div class="login-icon mb-3">
+          <i class="bi bi-speedometer2"></i>
+        </div>
+        <h1 class="h4 fw-semibold mb-1">Painel de Gestão</h1>
+        <p class="text-muted small mb-0">Entre com suas credenciais para continuar</p>
+      </div>
+
+      <div class="alert alert-danger py-2 d-flex align-items-center gap-2" *ngIf="mensagemErro()" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>{{ mensagemErro() }}</span>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="entrar()" novalidate>
+        <div class="mb-3">
+          <label class="form-label small mb-1" for="usuario">Usuário</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-person"></i></span>
+            <input
+              type="text"
+              id="usuario"
+              class="form-control"
+              formControlName="usuario"
+              placeholder="admin"
+              autocomplete="username"
+            />
+          </div>
+          <div
+            class="form-text text-danger small"
+            *ngIf="form.controls.usuario.invalid && form.controls.usuario.touched"
+          >
+            Usuário é obrigatório.
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label small mb-1" for="senha">Senha</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            <input
+              [type]="senhaVisivel() ? 'text' : 'password'"
+              id="senha"
+              class="form-control"
+              formControlName="senha"
+              placeholder="••••••"
+              autocomplete="current-password"
+            />
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="alternarVisibilidadeSenha()"
+              [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
+            >
+              <i class="bi" [class.bi-eye]="!senhaVisivel()" [class.bi-eye-slash]="senhaVisivel()"></i>
+            </button>
+          </div>
+          <div
+            class="form-text text-danger small"
+            *ngIf="form.controls.senha.invalid && form.controls.senha.touched"
+          >
+            Senha é obrigatória.
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2"
+          [disabled]="form.invalid || autenticando()"
+        >
+          <span class="spinner-border spinner-border-sm" *ngIf="autenticando()" role="status"></span>
+          <span>{{ autenticando() ? 'Entrando...' : 'Entrar' }}</span>
+        </button>
+
+        <p class="text-center text-muted small mt-3 mb-0">
+          Demonstração: usuário <strong>admin</strong> / senha <strong>admin</strong>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
