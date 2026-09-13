@@ -78,4 +78,50 @@
       <span class="spinner-border spinner-border-sm me-2"></span>Atualizando usuários...
     </div>
   </div>
+
+  <div class="mb-4">
+    <h3 class="h6 text-muted text-uppercase mb-2">Estoque</h3>
+    <div class="row row-cols-2 row-cols-md-3 g-3">
+      <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-info bg-gradient text-white">
+          <div class="card-body">
+            <div class="small opacity-75">Movimentações</div>
+            <div class="fs-4 fw-semibold">{{ resumo.estoque.totalMovimentacoes }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-primary bg-gradient text-white">
+          <div class="card-body">
+            <div class="small opacity-75">Reservas ativas</div>
+            <div class="fs-4 fw-semibold">{{ resumo.estoque.reservasAtivas }}</div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card h-100 shadow-sm border-0 bg-secondary bg-gradient text-white">
+          <div class="card-body">
+            <div class="small opacity-75">Depósitos ativos</div>
+            <div class="fs-4 fw-semibold">{{ resumo.estoque.depositosAtivos }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="h6 text-muted text-uppercase mb-2">Atividades recentes</h3>
+    <ul class="list-group" *ngIf="(ultimasAtividades$ | async)?.length; else semAtividades">
+      <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let atividade of ultimasAtividades$ | async">
+        <div>
+          <span class="badge text-bg-light border me-2">{{ atividade.acao }}</span>
+          {{ atividade.descricao }}
+        </div>
+        <small class="text-muted text-nowrap ms-2">{{ atividade.dataHora | date: 'dd/MM HH:mm' }}</small>
+      </li>
+    </ul>
+    <ng-template #semAtividades>
+      <p class="text-muted small mb-0">Nenhuma atividade registrada ainda.</p>
+    </ng-template>
+  </div>
 </section>

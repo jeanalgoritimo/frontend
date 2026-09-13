@@ -1,0 +1,143 @@
+<section class="localizacoes">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Localizações</h2>
+    <button type="button" class="btn btn-primary" (click)="abrirModalNovo()">
+      <i class="bi bi-plus-lg me-1"></i>Nova Localização
+    </button>
+  </div>
+
+  <div class="mb-3">
+    <div class="input-group" style="max-width: 360px">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar por corredor, prateleira ou posição..."
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="onBuscar()"
+      />
+    </div>
+  </div>
+
+  <div class="alert alert-danger py-2" *ngIf="mensagemErro && !modalAberto">{{ mensagemErro }}</div>
+  <div class="text-muted mb-2" *ngIf="carregando$ | async">
+    <span class="spinner-border spinner-border-sm me-2"></span>Carregando...
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead class="table-light">
+        <tr>
+          <th>Depósito</th>
+          <th>Corredor</th>
+          <th>Prateleira</th>
+          <th>Posição</th>
+          <th>Ocupação</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let localizacao of localizacoes$ | async">
+          <td>{{ localizacao.depositoId }}</td>
+          <td>{{ localizacao.corredor }}</td>
+          <td>{{ localizacao.prateleira }}</td>
+          <td>{{ localizacao.posicao }}</td>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div class="progress flex-grow-1" style="height: 6px; min-width: 60px">
+                <div
+                  class="progress-bar"
+                  [class.bg-danger]="localizacao.percentualOcupacao >= 90"
+                  [class.bg-warning]="localizacao.percentualOcupacao >= 60 && localizacao.percentualOcupacao < 90"
+                  [class.bg-success]="localizacao.percentualOcupacao < 60"
+                  [style.width.%]="localizacao.percentualOcupacao"
+                ></div>
+              </div>
+              <span class="small text-nowrap">
+                {{ localizacao.ocupacaoAtual }}/{{ localizacao.capacidade }} ({{ localizacao.percentualOcupacao | number: '1.0-0' }}%)
+              </span>
+            </div>
+          </td>
+          <td>
+            <span class="badge" [class.text-bg-success]="localizacao.ativa" [class.text-bg-secondary]="!localizacao.ativa">
+              {{ localizacao.ativa ? 'Ativa' : 'Inativa' }}
+            </span>
+          </td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalEdicao(localizacao)">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="abrirConfirmExclusao(localizacao)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<ng-container *ngIf="modalAberto">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="salvar()">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modoEdicao ? 'Editar Localização' : 'Nova Localização' }}</h5>
+            <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Depósito</label>
+              <select class="form-select" [(ngModel)]="formLocalizacao.depositoId" name="depositoId" required>
+                <option [value]="0" disabled>Selecione um depósito...</option>
+                <option *ngFor="let deposito of depositos$ | async" [value]="deposito.id">
+                  {{ deposito.codigo }} — {{ deposito.nome }}
+                </option>
+              </select>
+            </div>
+            <div class="row g-2">
+              <div class="col-4">
+                <label class="form-label small mb-1">Corredor</label>
+                <input type="text" class="form-control" [(ngModel)]="formLocalizacao.corredor" name="corredor" required />
+              </div>
+              <div class="col-4">
+                <label class="form-label small mb-1">Prateleira</label>
+                <input type="text" class="form-control" [(ngModel)]="formLocalizacao.prateleira" name="prateleira" />
+              </div>
+              <div class="col-4">
+                <label class="form-label small mb-1">Posição</label>
+                <input type="text" class="form-control" [(ngModel)]="formLocalizacao.posicao" name="posicao" />
+              </div>
+            </div>
+            <div class="row g-2 mt-1">
+              <div class="col-6">
+                <label class="form-label small mb-1">Capacidade</label>
+                <input type="number" class="form-control" [(ngModel)]="formLocalizacao.capacidade" name="capacidade" min="0" />
+              </div>
+              <div class="col-6">
+                <label class="form-label small mb-1">Ocupação atual</label>
+                <input type="number" class="form-control" [(ngModel)]="formLocalizacao.ocupacaoAtual" name="ocupacaoAtual" min="0" />
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</ng-container>
+
+<app-confirm-modal
+  [aberto]="!!localizacaoParaExcluir"
+  titulo="Excluir Localização"
+  [mensagem]="'Deseja excluir a localização ' + (localizacaoParaExcluir?.corredor ?? '') + '?'"
+  (confirmar)="confirmarExclusao()"
+  (cancelar)="cancelarExclusao()"
+/>

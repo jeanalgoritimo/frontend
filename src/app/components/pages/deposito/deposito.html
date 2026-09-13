@@ -1,0 +1,116 @@
+<section class="depositos">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Depósitos</h2>
+    <button type="button" class="btn btn-primary" (click)="abrirModalNovo()">
+      <i class="bi bi-plus-lg me-1"></i>Novo Depósito
+    </button>
+  </div>
+
+  <div class="mb-3">
+    <div class="input-group" style="max-width: 360px">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar por código ou nome..."
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="onBuscar()"
+      />
+    </div>
+  </div>
+
+  <div class="alert alert-danger py-2" *ngIf="mensagemErro && !modalAberto">{{ mensagemErro }}</div>
+  <div class="text-muted mb-2" *ngIf="carregando$ | async">
+    <span class="spinner-border spinner-border-sm me-2"></span>Carregando...
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead class="table-light">
+        <tr>
+          <th>Código</th>
+          <th>Nome</th>
+          <th>Responsável</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let deposito of depositos$ | async">
+          <td>{{ deposito.codigo }}</td>
+          <td>{{ deposito.nome }}</td>
+          <td>{{ deposito.responsavel }}</td>
+          <td>
+            <span class="badge" [class.text-bg-success]="deposito.ativo" [class.text-bg-secondary]="!deposito.ativo">
+              {{ deposito.ativo ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td class="text-end">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="abrirModalEdicao(deposito)">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary me-1" (click)="alternarAtivo(deposito)">
+              <i class="bi" [class.bi-toggle-off]="!deposito.ativo" [class.bi-toggle-on]="deposito.ativo"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="abrirConfirmExclusao(deposito)">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<ng-container *ngIf="modalAberto">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="salvar()">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ modoEdicao ? 'Editar Depósito' : 'Novo Depósito' }}</h5>
+            <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label small mb-1">Código</label>
+                <input type="text" class="form-control" [(ngModel)]="formDeposito.codigo" name="codigo" required />
+              </div>
+              <div class="col-6">
+                <label class="form-label small mb-1">Nome</label>
+                <input type="text" class="form-control" [(ngModel)]="formDeposito.nome" name="nome" required />
+              </div>
+            </div>
+            <div class="mb-2 mt-2">
+              <label class="form-label small mb-1">Descrição</label>
+              <input type="text" class="form-control" [(ngModel)]="formDeposito.descricao" name="descricao" />
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Endereço</label>
+              <input type="text" class="form-control" [(ngModel)]="formDeposito.endereco" name="endereco" />
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Responsável</label>
+              <input type="text" class="form-control" [(ngModel)]="formDeposito.responsavel" name="responsavel" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</ng-container>
+
+<app-confirm-modal
+  [aberto]="!!depositoParaExcluir"
+  titulo="Excluir Depósito"
+  [mensagem]="'Deseja excluir o depósito ' + (depositoParaExcluir?.nome ?? '') + '?'"
+  (confirmar)="confirmarExclusao()"
+  (cancelar)="cancelarExclusao()"
+/>

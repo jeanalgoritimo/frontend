@@ -1,0 +1,154 @@
+<section class="reservas">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 mb-0">Reservas de Estoque</h2>
+    <button type="button" class="btn btn-primary" (click)="abrirModalNovo()">
+      <i class="bi bi-plus-lg me-1"></i>Nova Reserva
+    </button>
+  </div>
+
+  <ng-container *ngIf="disponibilidade$ | async as disponibilidades">
+    <div class="table-responsive mb-4">
+      <table class="table table-sm bg-white">
+        <thead class="table-light">
+          <tr>
+            <th>Produto</th>
+            <th>Estoque físico</th>
+            <th>Reservado</th>
+            <th>Disponível</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of disponibilidades">
+            <td>{{ nomeProduto(d.produtoId) }}</td>
+            <td>{{ d.estoqueFisico }}</td>
+            <td>{{ d.reservado }}</td>
+            <td [class.text-danger]="d.disponivel <= 0" [class.fw-semibold]="d.disponivel <= 0">
+              {{ d.disponivel }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+
+  <div class="mb-3">
+    <div class="input-group" style="max-width: 360px">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Buscar por solicitante ou finalidade..."
+        [(ngModel)]="termoBusca"
+        (ngModelChange)="onBuscar()"
+      />
+    </div>
+  </div>
+
+  <div class="alert alert-danger py-2" *ngIf="mensagemErro && !modalAberto">{{ mensagemErro }}</div>
+  <div class="text-muted mb-2" *ngIf="carregando$ | async">
+    <span class="spinner-border spinner-border-sm me-2"></span>Carregando...
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle bg-white">
+      <thead class="table-light">
+        <tr>
+          <th>Produto</th>
+          <th>Quantidade</th>
+          <th>Solicitante</th>
+          <th>Finalidade</th>
+          <th>Validade</th>
+          <th>Status</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reserva of reservas$ | async">
+          <td>{{ nomeProduto(reserva.produtoId) }}</td>
+          <td>{{ reserva.quantidade }}</td>
+          <td>{{ reserva.solicitante }}</td>
+          <td>{{ reserva.finalidade }}</td>
+          <td>{{ reserva.validade | date: 'dd/MM/yyyy' }}</td>
+          <td>
+            <span
+              class="badge"
+              [class.text-bg-success]="reserva.status === 'ativa'"
+              [class.text-bg-primary]="reserva.status === 'atendida'"
+              [class.text-bg-warning]="reserva.status === 'expirada'"
+              [class.text-bg-secondary]="reserva.status === 'cancelada'"
+            >
+              {{ reserva.status }}
+            </span>
+          </td>
+          <td class="text-end" *ngIf="reserva.status === 'ativa'">
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="atender(reserva)" title="Atender reserva">
+              <i class="bi bi-check-lg"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="abrirConfirmCancelamento(reserva)">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </td>
+          <td *ngIf="reserva.status !== 'ativa'"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<ng-container *ngIf="modalAberto">
+  <div class="modal fade show d-block" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form (ngSubmit)="salvar()">
+          <div class="modal-header">
+            <h5 class="modal-title">Nova Reserva</h5>
+            <button type="button" class="btn-close" aria-label="Fechar" (click)="fecharModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="alert alert-danger py-2" *ngIf="mensagemErro">{{ mensagemErro }}</div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Produto</label>
+              <select class="form-select" [(ngModel)]="form.produtoId" name="produtoId" required>
+                <option [value]="0" disabled>Selecione um produto...</option>
+                <option *ngFor="let produto of produtos$ | async" [value]="produto.id">
+                  {{ produto.nome }} (estoque: {{ produto.estoque }})
+                </option>
+              </select>
+            </div>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label small mb-1">Quantidade</label>
+                <input type="number" class="form-control" [(ngModel)]="form.quantidade" name="quantidade" min="1" required />
+              </div>
+              <div class="col-6">
+                <label class="form-label small mb-1">Validade</label>
+                <input type="date" class="form-control" [(ngModel)]="validadeTexto" name="validade" />
+              </div>
+            </div>
+            <div class="mb-2 mt-2">
+              <label class="form-label small mb-1">Solicitante</label>
+              <input type="text" class="form-control" [(ngModel)]="form.solicitante" name="solicitante" required />
+            </div>
+            <div class="mb-2">
+              <label class="form-label small mb-1">Finalidade</label>
+              <input type="text" class="form-control" [(ngModel)]="form.finalidade" name="finalidade" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="fecharModal()">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Reservar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop fade show"></div>
+</ng-container>
+
+<app-confirm-modal
+  [aberto]="!!reservaParaCancelar"
+  titulo="Cancelar Reserva"
+  mensagem="Deseja cancelar esta reserva?"
+  (confirmar)="confirmarCancelamento()"
+  (cancelar)="cancelarConfirmacao()"
+/>

@@ -10,35 +10,74 @@
         <i class="bi bi-speedometer2"></i> Dashboard
       </a>
     </li>
-    <li class="nav-item">
-      <a
-        class="nav-link d-flex align-items-center gap-2"
-        routerLink="/produtos"
-        routerLinkActive="active"
-        (click)="fechar.emit()"
+
+    <li class="nav-item mt-2">
+      <button
+        class="nav-link toggle-grupo d-flex align-items-center gap-2 w-100 text-start btn btn-link text-decoration-none text-reset px-2"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#grupoCadastros"
+        aria-expanded="true"
+        aria-controls="grupoCadastros"
       >
-        <i class="bi bi-box-seam"></i> Produtos
-      </a>
+        <i class="bi bi-folder"></i> Cadastros <i class="bi bi-chevron-down ms-auto small"></i>
+      </button>
+      <div class="collapse show" id="grupoCadastros">
+        <ul class="nav nav-pills flex-column ps-3 gap-1 mt-1">
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/produtos" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-box-seam"></i> Produtos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/categorias" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-tags"></i> Categorias
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/usuarios" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-people"></i> Usuários
+            </a>
+          </li>
+        </ul>
+      </div>
     </li>
-    <li class="nav-item">
-      <a
-        class="nav-link d-flex align-items-center gap-2"
-        routerLink="/categorias"
-        routerLinkActive="active"
-        (click)="fechar.emit()"
+
+    <li class="nav-item mt-2">
+      <button
+        class="nav-link toggle-grupo d-flex align-items-center gap-2 w-100 text-start btn btn-link text-decoration-none text-reset px-2"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#grupoEstoque"
+        aria-expanded="true"
+        aria-controls="grupoEstoque"
       >
-        <i class="bi bi-tags"></i> Categorias
-      </a>
-    </li>
-    <li class="nav-item">
-      <a
-        class="nav-link d-flex align-items-center gap-2"
-        routerLink="/usuarios"
-        routerLinkActive="active"
-        (click)="fechar.emit()"
-      >
-        <i class="bi bi-people"></i> Usuários
-      </a>
+        <i class="bi bi-archive"></i> Estoque <i class="bi bi-chevron-down ms-auto small"></i>
+      </button>
+      <div class="collapse show" id="grupoEstoque">
+        <ul class="nav nav-pills flex-column ps-3 gap-1 mt-1">
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/movimentacoes" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-arrow-left-right"></i> Movimentações
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/depositos" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-building"></i> Depósitos
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/localizacoes" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-geo-alt"></i> Localizações
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/reservas" routerLinkActive="active" (click)="fechar.emit()">
+              <i class="bi bi-bookmark-check"></i> Reservas
+            </a>
+          </li>
+        </ul>
+      </div>
     </li>
   </ul>
 </aside>

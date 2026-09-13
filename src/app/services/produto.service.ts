@@ -73,6 +73,40 @@ export class ProdutoService {
     return this.produtosSubject.value;
   }
 
+  /**
+   * Ajusta o estoque físico do produto em `delta` (positivo ou negativo).
+   * Usado pelo módulo de Movimentações de Estoque para manter `Produto.estoque`
+   * como a fonte única e atualizada do saldo total do produto.
+   */
+  ajustarEstoque(produtoId: number, delta: number): Observable<Produto> {
+    const atual = this.produtosSubject.value.find((p) => p.id === produtoId);
+    if (!atual) {
+      return throwError(() => new Error('Produto não encontrado.'));
+    }
+
+    const novoEstoque = atual.estoque + delta;
+    if (novoEstoque < 0) {
+      return throwError(() => new Error('Estoque não pode ficar negativo.'));
+    }
+
+    this.carregandoSubject.next(true);
+    const atualizado: Produto = { ...atual, estoque: novoEstoque };
+
+    return of(atualizado).pipe(
+      delay(300),
+      tap((produto) => {
+        this.produtosSubject.next(
+          this.produtosSubject.value.map((p) => (p.id === produtoId ? produto : p)),
+        );
+      }),
+      catchError((err) => {
+        this.erroSubject.next('Erro ao ajustar estoque do produto.');
+        return throwError(() => err);
+      }),
+      finalize(() => this.carregandoSubject.next(false)),
+    );
+  }
+
   /** switchMap garante que, se uma nova requisição de busca chegar, a anterior é cancelada */
   buscarPorId$(id: number): Observable<Produto | undefined> {
     return this.termoBuscaSubject.pipe(
