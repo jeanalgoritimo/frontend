@@ -39,6 +39,7 @@
               <i class="bi bi-people"></i> Usuários
             </a>
           </li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/fornecedores" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-truck"></i> Fornecedores</a></li>
         </ul>
       </div>
     </li>
@@ -76,8 +77,50 @@
               <i class="bi bi-bookmark-check"></i> Reservas
             </a>
           </li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/reposicao" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-arrow-repeat"></i> Reposição</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/inventarios" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-clipboard2-check"></i> Inventários</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/contagem-ciclica" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-upc-scan"></i> Contagem cíclica</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/lotes" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-boxes"></i> Lotes</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/series" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-qr-code"></i> Séries</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/leitura" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-upc"></i> Leitura de códigos</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/devolucoes" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-arrow-counterclockwise"></i> Devoluções</a></li>
+          <li class="nav-item"><a class="nav-link d-flex align-items-center gap-2" routerLink="/estoque/valorizacao" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-currency-dollar"></i> Valorização</a></li>
         </ul>
       </div>
+    </li>
+
+    <li class="nav-item mt-2">
+      <button class="nav-link toggle-grupo d-flex align-items-center gap-2 w-100 text-start btn btn-link text-decoration-none text-reset px-2" type="button" data-bs-toggle="collapse" data-bs-target="#grupoCompras" aria-expanded="false"><i class="bi bi-cart3"></i> Compras <i class="bi bi-chevron-down ms-auto small"></i></button>
+      <div class="collapse" id="grupoCompras"><ul class="nav nav-pills flex-column ps-3 gap-1 mt-1">
+        <li><a class="nav-link" routerLink="/compras/solicitacoes" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-file-earmark-check me-2"></i>Solicitações</a></li>
+        <li><a class="nav-link" routerLink="/compras/cotacoes" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-calculator me-2"></i>Cotações</a></li>
+        <li><a class="nav-link" routerLink="/compras/pedidos" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-cart-check me-2"></i>Pedidos</a></li>
+        <li><a class="nav-link" routerLink="/compras/recebimentos" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-box-arrow-in-down me-2"></i>Recebimentos</a></li>
+      </ul></div>
+    </li>
+
+    <li class="nav-item mt-2">
+      <button class="nav-link toggle-grupo d-flex align-items-center gap-2 w-100 text-start btn btn-link text-decoration-none text-reset px-2" type="button" data-bs-toggle="collapse" data-bs-target="#grupoPlanejamento" aria-expanded="false"><i class="bi bi-graph-up-arrow"></i> Planejamento <i class="bi bi-chevron-down ms-auto small"></i></button>
+      <div class="collapse" id="grupoPlanejamento"><ul class="nav nav-pills flex-column ps-3 gap-1 mt-1">
+        <li><a class="nav-link" routerLink="/planejamento/demanda" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-bar-chart-line me-2"></i>Previsão de demanda</a></li>
+      </ul></div>
+    </li>
+
+    <li class="nav-item mt-2">
+      <button class="nav-link toggle-grupo d-flex align-items-center gap-2 w-100 text-start btn btn-link text-decoration-none text-reset px-2" type="button" data-bs-toggle="collapse" data-bs-target="#grupoRelatorios" aria-expanded="false"><i class="bi bi-file-earmark-bar-graph"></i> Relatórios <i class="bi bi-chevron-down ms-auto small"></i></button>
+      <div class="collapse" id="grupoRelatorios"><ul class="nav nav-pills flex-column ps-3 gap-1 mt-1">
+        <li><a class="nav-link" routerLink="/relatorios" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="fechar.emit()"><i class="bi bi-clipboard-data me-2"></i>Visão geral</a></li>
+        <li><a class="nav-link" routerLink="/relatorios/curva-abc" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-pie-chart me-2"></i>Curva ABC</a></li>
+      </ul></div>
+    </li>
+
+    <li class="nav-item mt-2">
+      <button class="nav-link toggle-grupo d-flex align-items-center gap-2 w-100 text-start btn btn-link text-decoration-none text-reset px-2" type="button" data-bs-toggle="collapse" data-bs-target="#grupoAdministracao" aria-expanded="false"><i class="bi bi-shield-lock"></i> Administração <i class="bi bi-chevron-down ms-auto small"></i></button>
+      <div class="collapse" id="grupoAdministracao"><ul class="nav nav-pills flex-column ps-3 gap-1 mt-1">
+        <li><a class="nav-link" routerLink="/administracao/perfis" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-person-lock me-2"></i>Perfis e permissões</a></li>
+        <li><a class="nav-link" routerLink="/administracao/auditoria" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-shield-check me-2"></i>Auditoria</a></li>
+        <li><a class="nav-link" routerLink="/administracao/configuracoes" routerLinkActive="active" (click)="fechar.emit()"><i class="bi bi-gear me-2"></i>Configurações</a></li>
+      </ul></div>
     </li>
   </ul>
 </aside>

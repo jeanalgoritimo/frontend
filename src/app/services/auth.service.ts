@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, delay, map, of } from 'rxjs';
+import { AtividadeService } from './atividade.service';
 
 /** Chave usada no sessionStorage para persistir o indicador de sessão autenticada. */
 export const CHAVE_SESSAO_AUTENTICADA = 'painel-gestao-autenticado';
@@ -16,6 +17,7 @@ export const CHAVE_SESSAO_AUTENTICADA = 'painel-gestao-autenticado';
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  constructor(private readonly atividadeService: AtividadeService) {}
   private readonly autenticadoSubject = new BehaviorSubject<boolean>(this.lerSessao());
 
   /** Stream público do estado de autenticação, usado pela navbar e pelos guards. */
@@ -35,6 +37,7 @@ export class AuthService {
       map((sucesso) => {
         if (sucesso) {
           this.iniciarSessao();
+          this.atividadeService.registrar({ usuario, entidade: 'sessao', entidadeId: usuario, acao: 'login', descricao: 'Login realizado com sucesso.' });
         }
         return sucesso;
       }),
@@ -42,6 +45,7 @@ export class AuthService {
   }
 
   logout(): void {
+    this.atividadeService.registrar({ usuario: 'admin', entidade: 'sessao', entidadeId: 'admin', acao: 'logout', descricao: 'Logout realizado.' });
     sessionStorage.removeItem(CHAVE_SESSAO_AUTENTICADA);
     this.autenticadoSubject.next(false);
   }

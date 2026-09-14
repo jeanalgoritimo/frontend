@@ -44,6 +44,23 @@ src/app/
 
 ## Funcionalidades
 
+### Gestão corporativa e suprimentos
+
+A versão atual também inclui uma evolução demonstrativa para gestão integrada:
+
+- autenticação local educacional (`admin` / `admin`) com rotas protegidas;
+- Dashboard executivo com estoque crítico, valor, cobertura, aprovações e alertas;
+- movimentações, depósitos, localizações e reservas de estoque;
+- fornecedores, solicitações, cotações, pedidos e recebimentos;
+- reposição, inventários, contagem cíclica, lotes, séries e leitura de códigos;
+- devoluções, valorização, previsão de demanda e Curva ABC;
+- relatórios, auditoria, perfis, configurações e central de alertas;
+- tema claro/escuro persistido no navegador;
+- exportação CSV nas páginas gerenciais;
+- estado reativo com RxJS e dados demonstrativos mantidos em memória.
+
+> A autenticação e os dados locais são exclusivamente educacionais. Em produção, substitua-os por uma API ASP.NET Core, banco de dados e autenticação JWT/OIDC.
+
 ### Dashboard
 - Combina os streams de estatísticas de **Produtos** e **Usuários** em uma única visão (`combineLatest`).
 - Cards com total de produtos, produtos ativos, produtos com estoque baixo e valor total em estoque.

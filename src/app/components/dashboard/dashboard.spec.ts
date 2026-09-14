@@ -1,4 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { registerLocaleData } from '@angular/common';
+import localePt from '@angular/common/locales/pt';
 
 import { Dashboard } from './dashboard';
 
@@ -7,8 +10,10 @@ describe('Dashboard', () => {
   let fixture: ComponentFixture<Dashboard>;
 
   beforeEach(async () => {
+    registerLocaleData(localePt);
     await TestBed.configureTestingModule({
       imports: [Dashboard],
+      providers: [provideRouter([])],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Dashboard);

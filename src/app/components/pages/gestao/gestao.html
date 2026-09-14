@@ -1,0 +1,63 @@
+<section *ngIf="config$ | async as config" class="gestao-page">
+  <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-3">
+        <span class="page-icon text-bg-{{ config.cor }}"><i class="bi {{ config.icone }}"></i></span>
+        <div><h1 class="h3 mb-1">{{ config.titulo }}</h1><p class="text-body-secondary mb-0">{{ config.subtitulo }}</p></div>
+      </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button *ngIf="config.modulo === 'alertas'" class="btn btn-outline-secondary" (click)="marcarAlertas(config)">
+        <i class="bi bi-check2-all me-1"></i>Marcar como lidos
+      </button>
+      <button class="btn btn-{{ config.cor }}" (click)="adicionar(config)" [disabled]="processando">
+        <span *ngIf="processando" class="spinner-border spinner-border-sm me-1"></span>
+        <i *ngIf="!processando" class="bi bi-plus-lg me-1"></i>{{ config.rotuloNovo }}
+      </button>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4" *ngIf="indicadores$ | async as kpi">
+    <div class="col-6 col-xl-3"><div class="metric card border-0 shadow-sm"><div class="card-body"><small class="text-body-secondary">Total de registros</small><strong>{{ kpi.total }}</strong></div></div></div>
+    <div class="col-6 col-xl-3"><div class="metric card border-0 shadow-sm"><div class="card-body"><small class="text-body-secondary">Pendentes</small><strong class="text-warning">{{ kpi.pendentes }}</strong></div></div></div>
+    <div class="col-6 col-xl-3"><div class="metric card border-0 shadow-sm"><div class="card-body"><small class="text-body-secondary">Prioridade alta</small><strong class="text-danger">{{ kpi.criticos }}</strong></div></div></div>
+    <div class="col-6 col-xl-3"><div class="metric card border-0 shadow-sm"><div class="card-body"><small class="text-body-secondary">Valor relacionado</small><strong class="fs-5">{{ kpi.valorTotal | currency:'BRL' }}</strong></div></div></div>
+  </div>
+
+  <div class="card border-0 shadow-sm" *ngIf="registros$ | async as registros">
+    <div class="card-header bg-body d-flex flex-column flex-lg-row gap-2 justify-content-between py-3">
+      <div class="input-group search"><span class="input-group-text"><i class="bi bi-search"></i></span><input #busca class="form-control" placeholder="Pesquisar código, descrição ou responsável" (input)="buscar(busca.value)"></div>
+      <div class="d-flex gap-2">
+        <select #status class="form-select" (change)="filtrarStatus(status.value)"><option value="">Todos os status</option><option *ngFor="let item of config.status" [value]="item">{{ item }}</option></select>
+        <button class="btn btn-outline-secondary text-nowrap" (click)="exportar(config, registros)"><i class="bi bi-download me-1"></i>CSV</button>
+      </div>
+    </div>
+
+      <div class="table-responsive" *ngIf="registros.length; else vazio">
+        <table class="table table-hover align-middle mb-0">
+          <thead><tr><th *ngFor="let coluna of config.colunas">{{ coluna.titulo }}</th><th>Ações</th></tr></thead>
+          <tbody><tr *ngFor="let item of registros">
+            <td class="fw-semibold">{{ item.codigo }}</td>
+            <td><div class="fw-medium">{{ item.titulo }}</div><small class="text-body-secondary">{{ item.descricao }}</small></td>
+            <td><span class="badge text-bg-{{ badge(item.status) }}">{{ item.status }}</span></td>
+            <td>{{ item.quantidade }}</td><td>{{ item.valor | currency:'BRL' }}</td><td>{{ item.responsavel }}</td><td>{{ item.data | date:'dd/MM/yyyy' }}</td>
+            <td><div class="dropdown"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">Ações</button><ul class="dropdown-menu dropdown-menu-end">
+              <li><button class="dropdown-item" (click)="selecionado = item"><i class="bi bi-eye me-2"></i>Detalhes</button></li>
+              <li><hr class="dropdown-divider"></li>
+              <li *ngFor="let novoStatus of config.status"><button class="dropdown-item" (click)="alterarStatus(config, item, novoStatus)">{{ novoStatus }}</button></li>
+            </ul></div></td>
+          </tr></tbody>
+        </table>
+      </div>
+      <ng-template #vazio><div class="empty text-center py-5"><i class="bi bi-inbox display-5 text-body-tertiary"></i><h2 class="h5 mt-3">Nenhum registro encontrado</h2><p class="text-body-secondary">Altere os filtros ou inclua um novo registro.</p></div></ng-template>
+      <div class="card-footer bg-body text-body-secondary small">Exibindo {{ registros.length }} registro(s). Dados demonstrativos mantidos em memória.</div>
+  </div>
+
+  <div class="modal-backdrop-custom" *ngIf="selecionado" (click)="selecionado = null">
+    <div class="modal-card card shadow-lg" (click)="$event.stopPropagation()">
+      <div class="card-header d-flex justify-content-between align-items-center"><strong>Detalhes do registro</strong><button class="btn-close" (click)="selecionado = null"></button></div>
+      <div class="card-body"><dl class="row mb-0"><dt class="col-4">Código</dt><dd class="col-8">{{ selecionado.codigo }}</dd><dt class="col-4">Descrição</dt><dd class="col-8">{{ selecionado.titulo }}</dd><dt class="col-4">Status</dt><dd class="col-8">{{ selecionado.status }}</dd><dt class="col-4">Responsável</dt><dd class="col-8">{{ selecionado.responsavel }}</dd><dt class="col-4">Observações</dt><dd class="col-8">{{ selecionado.descricao }}</dd><dt class="col-4">Prioridade</dt><dd class="col-8">{{ selecionado.prioridade }}</dd></dl></div>
+      <div class="card-footer text-end"><button class="btn btn-secondary" (click)="selecionado = null">Fechar</button></div>
+    </div>
+  </div>
+</section>

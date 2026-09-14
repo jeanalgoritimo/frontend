@@ -1,1 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+:root { --app-bg: #f4f7fb; }
+body { background: var(--app-bg); }
+body.tema-escuro { --app-bg: #111827; }
+.card { transition: background-color .2s ease, border-color .2s ease, transform .2s ease; }
+.card:hover { transform: translateY(-1px); }

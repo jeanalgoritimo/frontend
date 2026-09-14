@@ -46,6 +46,9 @@
   }
 }
 
+.sidebar { overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+.sidebar .nav-link { font-size: .9rem; }
+
 @media (max-width: 991.98px) {
   :host {
     position: fixed;

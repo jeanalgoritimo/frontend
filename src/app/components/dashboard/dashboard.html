@@ -1,127 +1,22 @@
-<section class="dashboard" *ngIf="resumo$ | async as resumo">
-  <h2 class="h4 mb-3">Dashboard</h2>
-
-  <div class="mb-4">
-    <h3 class="h6 text-muted text-uppercase mb-2">Produtos</h3>
-    <div class="row row-cols-2 row-cols-md-4 g-3">
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-primary bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Total</div>
-            <div class="fs-4 fw-semibold">{{ resumo.produtos.totalProdutos }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-success bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Ativos</div>
-            <div class="fs-4 fw-semibold">{{ resumo.produtos.produtosAtivos }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div
-          class="card h-100 shadow-sm border-0 text-white bg-gradient"
-          [class.bg-danger]="resumo.produtos.produtosBaixoEstoque > 0"
-          [class.bg-secondary]="resumo.produtos.produtosBaixoEstoque === 0"
-        >
-          <div class="card-body">
-            <div class="small opacity-75">Estoque baixo</div>
-            <div class="fs-4 fw-semibold">{{ resumo.produtos.produtosBaixoEstoque }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-info bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Valor em estoque</div>
-            <div class="fs-4 fw-semibold">{{ resumo.produtos.valorTotalEstoque | currency: 'BRL' }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-2" *ngIf="carregandoProdutos$ | async">
-      <span class="spinner-border spinner-border-sm me-2"></span>Atualizando produtos...
-    </div>
+<section class="dashboard" *ngIf="vm$ | async as vm">
+  <header class="hero d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+    <div><p class="eyebrow mb-1">VISÃO EXECUTIVA</p><h1 class="h2 mb-1">Olá, Administrador!</h1><p class="text-body-secondary mb-0">{{ hoje | date:"EEEE, dd 'de' MMMM 'de' yyyy":"":"pt-BR" }} · Última atualização {{ ultimaAtualizacao | date:'HH:mm:ss' }}</p></div>
+    <div class="d-flex flex-wrap gap-2"><a routerLink="/produtos" [queryParams]="{novo:true}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Novo produto</a><a routerLink="/compras/solicitacoes" class="btn btn-outline-primary"><i class="bi bi-cart-plus me-1"></i>Solicitar compra</a><button class="btn btn-outline-secondary" (click)="atualizar()" [disabled]="(atualizando$ | async) === true"><span *ngIf="atualizando$ | async" class="spinner-border spinner-border-sm me-1"></span><i *ngIf="(atualizando$ | async) === false" class="bi bi-arrow-clockwise me-1"></i>Atualizar</button></div>
+  </header>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-xl"><a routerLink="/produtos" class="kpi card border-0 shadow-sm text-decoration-none"><div class="card-body"><span class="kpi-icon text-bg-primary"><i class="bi bi-box-seam"></i></span><small class="text-body-secondary">Produtos</small><strong>{{ vm.produtos.totalProdutos }}</strong><span class="small text-success">{{ vm.produtos.produtosAtivos }} ativos</span></div></a></div>
+    <div class="col-6 col-xl"><a routerLink="/estoque/reposicao" class="kpi card border-0 shadow-sm text-decoration-none"><div class="card-body"><span class="kpi-icon text-bg-danger"><i class="bi bi-exclamation-triangle"></i></span><small class="text-body-secondary">Estoque crítico</small><strong>{{ vm.produtos.produtosBaixoEstoque }}</strong><span class="small text-danger">{{ vm.semEstoque }} sem estoque</span></div></a></div>
+    <div class="col-6 col-xl"><a routerLink="/estoque/valorizacao" class="kpi card border-0 shadow-sm text-decoration-none"><div class="card-body"><span class="kpi-icon text-bg-success"><i class="bi bi-cash-stack"></i></span><small class="text-body-secondary">Valor em estoque</small><strong class="money">{{ vm.produtos.valorTotalEstoque | currency:'BRL' }}</strong><span class="small text-body-secondary">{{ vm.totalUnidades }} unidades</span></div></a></div>
+    <div class="col-6 col-xl"><a routerLink="/compras/solicitacoes" class="kpi card border-0 shadow-sm text-decoration-none"><div class="card-body"><span class="kpi-icon text-bg-warning"><i class="bi bi-hourglass-split"></i></span><small class="text-body-secondary">Aprovações</small><strong>{{ vm.aprovacoes }}</strong><span class="small text-body-secondary">aguardando decisão</span></div></a></div>
+    <div class="col-6 col-xl"><a routerLink="/alertas" class="kpi card border-0 shadow-sm text-decoration-none"><div class="card-body"><span class="kpi-icon text-bg-dark"><i class="bi bi-bell"></i></span><small class="text-body-secondary">Alertas</small><strong>{{ vm.alertasNaoLidos }}</strong><span class="small text-body-secondary">não lidos</span></div></a></div>
   </div>
-
-  <div>
-    <h3 class="h6 text-muted text-uppercase mb-2">Usuários</h3>
-    <div class="row row-cols-2 row-cols-md-3 g-3">
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-primary bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Total</div>
-            <div class="fs-4 fw-semibold">{{ resumo.usuarios.totalUsuarios }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-success bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Ativos</div>
-            <div class="fs-4 fw-semibold">{{ resumo.usuarios.usuariosAtivos }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-dark bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Admins ativos</div>
-            <div class="fs-4 fw-semibold">{{ resumo.usuarios.totalAdmins }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-2" *ngIf="carregandoUsuarios$ | async">
-      <span class="spinner-border spinner-border-sm me-2"></span>Atualizando usuários...
-    </div>
+  <div class="row g-4 mb-4">
+    <div class="col-xl-7"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-body border-0 pt-4 px-4"><h2 class="h5 mb-1">Valor do estoque por categoria</h2><p class="small text-body-secondary mb-0">Distribuição financeira atual</p></div><div class="card-body px-4"><div class="category-row" *ngFor="let item of vm.categoriasResumo"><div class="d-flex justify-content-between mb-1"><span>{{ item.nome }} <small class="text-body-secondary">({{ item.unidades }} un.)</small></span><strong>{{ item.valor | currency:'BRL' }}</strong></div><div class="progress"><div class="progress-bar" [style.width.%]="item.percentual">{{ item.percentual }}%</div></div></div></div></div></div>
+    <div class="col-xl-5"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-body border-0 pt-4 px-4"><h2 class="h5">Saúde da operação</h2></div><div class="card-body px-4"><div class="health-grid"><div><i class="bi bi-calendar-check text-primary"></i><strong>{{ vm.coberturaDias }}</strong><small>Cobertura estimada (dias)</small></div><div><i class="bi bi-building text-info"></i><strong>{{ vm.depositosAtivos }}</strong><small>Depósitos ativos</small></div><div><i class="bi bi-bookmark-check text-success"></i><strong>{{ vm.reservasAtivas }}</strong><small>Reservas ativas</small></div><div><i class="bi bi-arrow-left-right text-warning"></i><strong>{{ vm.movimentacoes }}</strong><small>Movimentações</small></div></div></div></div></div>
   </div>
-
-  <div class="mb-4">
-    <h3 class="h6 text-muted text-uppercase mb-2">Estoque</h3>
-    <div class="row row-cols-2 row-cols-md-3 g-3">
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-info bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Movimentações</div>
-            <div class="fs-4 fw-semibold">{{ resumo.estoque.totalMovimentacoes }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-primary bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Reservas ativas</div>
-            <div class="fs-4 fw-semibold">{{ resumo.estoque.reservasAtivas }}</div>
-          </div>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card h-100 shadow-sm border-0 bg-secondary bg-gradient text-white">
-          <div class="card-body">
-            <div class="small opacity-75">Depósitos ativos</div>
-            <div class="fs-4 fw-semibold">{{ resumo.estoque.depositosAtivos }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="row g-4 mb-4">
+    <div class="col-xl-8"><div class="card border-0 shadow-sm"><div class="card-header bg-body d-flex justify-content-between align-items-center py-3"><div><h2 class="h5 mb-0">Produtos que exigem atenção</h2><small class="text-body-secondary">Saldo inferior a cinco unidades</small></div><a routerLink="/estoque/reposicao" class="btn btn-sm btn-outline-primary">Ver reposição</a></div><div class="table-responsive"><table class="table table-hover align-middle mb-0"><thead><tr><th>Produto</th><th>Categoria</th><th>Saldo</th><th>Valor unitário</th><th>Situação</th></tr></thead><tbody><tr *ngFor="let produto of vm.estoqueBaixo"><td class="fw-semibold">{{ produto.nome }}</td><td>{{ produto.categoria }}</td><td>{{ produto.estoque }}</td><td>{{ produto.preco | currency:'BRL' }}</td><td><span class="badge" [ngClass]="produto.estoque === 0 ? 'text-bg-danger' : 'text-bg-warning'">{{ produto.estoque === 0 ? 'Sem estoque' : 'Estoque baixo' }}</span></td></tr></tbody></table><div *ngIf="!vm.estoqueBaixo.length" class="text-center py-5 text-body-secondary"><i class="bi bi-check-circle display-6 text-success"></i><p class="mt-2">Estoque em situação regular.</p></div></div></div></div>
+    <div class="col-xl-4"><div class="card border-0 shadow-sm h-100"><div class="card-header bg-body d-flex justify-content-between py-3"><h2 class="h5 mb-0">Alertas prioritários</h2><a routerLink="/alertas" class="small">Ver todos</a></div><div class="list-group list-group-flush"><a routerLink="/alertas" class="list-group-item list-group-item-action py-3" *ngFor="let alerta of vm.alertas"><div class="d-flex gap-2"><i class="bi bi-exclamation-circle text-danger"></i><div><strong class="d-block">{{ alerta.titulo }}</strong><small class="text-body-secondary">{{ alerta.descricao }}</small></div></div></a></div></div></div>
   </div>
-
-  <div>
-    <h3 class="h6 text-muted text-uppercase mb-2">Atividades recentes</h3>
-    <ul class="list-group" *ngIf="(ultimasAtividades$ | async)?.length; else semAtividades">
-      <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let atividade of ultimasAtividades$ | async">
-        <div>
-          <span class="badge text-bg-light border me-2">{{ atividade.acao }}</span>
-          {{ atividade.descricao }}
-        </div>
-        <small class="text-muted text-nowrap ms-2">{{ atividade.dataHora | date: 'dd/MM HH:mm' }}</small>
-      </li>
-    </ul>
-    <ng-template #semAtividades>
-      <p class="text-muted small mb-0">Nenhuma atividade registrada ainda.</p>
-    </ng-template>
-  </div>
+  <div class="card border-0 shadow-sm"><div class="card-header bg-body py-3"><h2 class="h5 mb-0">Atividades recentes</h2></div><ul class="list-group list-group-flush" *ngIf="(ultimasAtividades$ | async)?.length; else semAtividades"><li class="list-group-item d-flex justify-content-between gap-3 py-3" *ngFor="let atividade of ultimasAtividades$ | async"><div><span class="badge text-bg-light border me-2">{{ atividade.acao }}</span>{{ atividade.descricao }}</div><small class="text-body-secondary text-nowrap">{{ atividade.dataHora | date:'dd/MM HH:mm' }}</small></li></ul><ng-template #semAtividades><div class="text-center py-4 text-body-secondary">As próximas operações aparecerão aqui.</div></ng-template></div>
 </section>
